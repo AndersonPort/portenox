@@ -7,10 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  name      String?
+  image     String?
+  analyses  Analysis[]
+  createdAt DateTime   @default(now())
+}
+
 model Analysis {
   id        Int      @id @default(autoincrement())
   rawText   String
   score     Int
   headline  String
   createdAt DateTime @default(now())
+
+  userId    Int
+  user      User @relation(fields: [userId], references: [id])
 }
