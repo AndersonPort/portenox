@@ -1,28 +1,75 @@
-export default function Dashboard() {
+import { prisma } from "@/app/lib/prisma";
+import { Analysis } from "@prisma/client";
+
+export default async function DashboardPage() {
+  const analyses: Analysis[] =
+    await prisma.analysis.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+  const total = analyses.length;
+
+  const average =
+    total > 0
+      ? Math.round(
+          analyses.reduce(
+            (acc: number, item: Analysis) =>
+              acc + item.score,
+            0
+          ) / total
+        )
+      : 0;
+
+  const latest = analyses[0];
+
   return (
-    <main className="min-h-screen bg-black text-white p-8">
+    <main className="min-h-screen bg-zinc-950 text-white p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold">Dashboard</h1>
+        <h1 className="text-5xl font-bold mb-10">
+          Dashboard
+        </h1>
 
-        <p className="text-zinc-400 mt-2">
-          Welcome to Portenox AI analytics.
-        </p>
-
-        <div className="grid md:grid-cols-3 gap-6 mt-10">
-          <div className="bg-zinc-900 p-6 rounded-2xl">
-            <p className="text-zinc-400">Profile Score</p>
-            <h2 className="text-4xl font-bold mt-2">78</h2>
+        <div className="grid md:grid-cols-3 gap-6 mb-10">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+            <p className="text-zinc-400 text-sm mb-2">
+              Total Analyses
+            </p>
+            <h2 className="text-4xl font-bold">
+              {total}
+            </h2>
           </div>
 
-          <div className="bg-zinc-900 p-6 rounded-2xl">
-            <p className="text-zinc-400">Recruiter Visibility</p>
-            <h2 className="text-4xl font-bold mt-2">Medium</h2>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+            <p className="text-zinc-400 text-sm mb-2">
+              Average Score
+            </p>
+            <h2 className="text-4xl font-bold">
+              {average}
+            </h2>
           </div>
 
-          <div className="bg-zinc-900 p-6 rounded-2xl">
-            <p className="text-zinc-400">Missing Skills</p>
-            <h2 className="text-4xl font-bold mt-2">3</h2>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+            <p className="text-zinc-400 text-sm mb-2">
+              Last Score
+            </p>
+            <h2 className="text-4xl font-bold">
+              {latest ? latest.score : "--"}
+            </h2>
           </div>
+        </div>
+
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+          <p className="text-zinc-400 text-sm mb-3">
+            Latest Headline
+          </p>
+
+          <p className="text-lg">
+            {latest
+              ? latest.headline
+              : "No analyses yet"}
+          </p>
         </div>
       </div>
     </main>
