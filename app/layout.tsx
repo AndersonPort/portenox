@@ -1,9 +1,10 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import Providers from "@/components/Providers";
 
 export const metadata = {
   title: "Portenox",
-  description: "AI Career Growth Platform",
+  description: "LinkedIn AI Optimizer",
 };
 
 export default function RootLayout({
@@ -14,9 +15,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-  <Navbar />
-  {children}
-</body>
+        <Providers>
+          <Navbar />
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }
