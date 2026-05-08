@@ -1,9 +1,31 @@
 import { prisma } from "@/app/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import { redirect } from "next/navigation";
 import { Analysis } from "@prisma/client";
 
 export default async function DashboardPage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    redirect("/");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+  });
+
+  if (!user) {
+    redirect("/");
+  }
+
   const analyses: Analysis[] =
     await prisma.analysis.findMany({
+      where: {
+        userId: user.id,
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -15,8 +37,10 @@ export default async function DashboardPage() {
     total > 0
       ? Math.round(
           analyses.reduce(
-            (acc: number, item: Analysis) =>
-              acc + item.score,
+            (
+              acc: number,
+              item: Analysis
+            ) => acc + item.score,
             0
           ) / total
         )
@@ -55,7 +79,9 @@ export default async function DashboardPage() {
               Last Score
             </p>
             <h2 className="text-4xl font-bold">
-              {latest ? latest.score : "--"}
+              {latest
+                ? latest.score
+                : "--"}
             </h2>
           </div>
         </div>
