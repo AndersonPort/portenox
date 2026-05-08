@@ -1,62 +1,82 @@
-export default function Home() {
+"use client";
+
+import { signIn, useSession } from "next-auth/react";
+import Link from "next/link";
+
+export default function HomePage() {
+  const { data: session } = useSession();
+
   return (
-    <main className="min-h-screen bg-black text-white">
-      <section className="max-w-6xl mx-auto px-6 py-24">
-        <p className="text-sm uppercase tracking-[0.3em] text-zinc-400">
-          Portenox AI
-        </p>
-
-        <h1 className="mt-6 text-5xl md:text-7xl font-bold leading-tight">
-          Be Found by Recruiters.
-        </h1>
-
-        <p className="mt-6 text-xl text-zinc-300 max-w-2xl">
-          Portenox analyzes your professional profile, improves visibility,
-          optimizes keywords and helps you attract better opportunities.
-        </p>
-
-        <div className="mt-10 flex gap-4">
-          <a
-            href="/dashboard"
-            className="px-6 py-3 rounded-2xl bg-white text-black font-semibold"
-          >
-            Start Free
-          </a>
-
-          <a
-            href="#features"
-            className="px-6 py-3 rounded-2xl border border-zinc-700"
-          >
-            Learn More
-          </a>
-        </div>
-      </section>
-
-      <section
-        id="features"
-        className="max-w-6xl mx-auto px-6 pb-24 grid md:grid-cols-3 gap-6"
-      >
-        <div className="p-6 rounded-2xl bg-zinc-900">
-          <h3 className="text-xl font-semibold">AI Profile Score</h3>
-          <p className="mt-3 text-zinc-400">
-            Understand how attractive your profile is to recruiters.
+    <main className="min-h-screen bg-zinc-950 text-white px-8 py-20">
+      <div className="max-w-6xl mx-auto">
+        <section className="text-center max-w-4xl mx-auto">
+          <p className="text-zinc-400 mb-4 text-sm uppercase tracking-widest">
+            AI Career Growth Platform
           </p>
-        </div>
 
-        <div className="p-6 rounded-2xl bg-zinc-900">
-          <h3 className="text-xl font-semibold">Keyword Optimization</h3>
-          <p className="mt-3 text-zinc-400">
-            Improve search visibility in recruiter systems.
-          </p>
-        </div>
+          <h1 className="text-6xl font-bold leading-tight mb-6">
+            Optimize your LinkedIn profile
+            <span className="block text-zinc-400">
+              to attract recruiters.
+            </span>
+          </h1>
 
-        <div className="p-6 rounded-2xl bg-zinc-900">
-          <h3 className="text-xl font-semibold">Career Growth Plan</h3>
-          <p className="mt-3 text-zinc-400">
-            Discover the next skills to level up your career.
+          <p className="text-zinc-400 text-xl mb-10">
+            Personalized profile analysis,
+            better headlines, stronger
+            positioning and career growth
+            powered by AI.
           </p>
-        </div>
-      </section>
+
+          {!session ? (
+            <button
+              onClick={() => signIn("google")}
+              className="bg-white text-black px-8 py-4 rounded-2xl font-semibold text-lg hover:opacity-90 transition"
+            >
+              Start with Google
+            </button>
+          ) : (
+            <Link
+              href="/dashboard"
+              className="bg-white text-black px-8 py-4 rounded-2xl font-semibold text-lg inline-block"
+            >
+              Go to Dashboard
+            </Link>
+          )}
+        </section>
+
+        <section className="grid md:grid-cols-3 gap-6 mt-24">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+            <h3 className="text-xl font-bold mb-3">
+              AI Analysis
+            </h3>
+            <p className="text-zinc-400">
+              Understand how recruiters see
+              your profile.
+            </p>
+          </div>
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+            <h3 className="text-xl font-bold mb-3">
+              Better Headlines
+            </h3>
+            <p className="text-zinc-400">
+              Generate stronger professional
+              positioning.
+            </p>
+          </div>
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+            <h3 className="text-xl font-bold mb-3">
+              Track Progress
+            </h3>
+            <p className="text-zinc-400">
+              Save analyses and improve over
+              time.
+            </p>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
