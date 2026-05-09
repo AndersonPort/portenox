@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import { runCareerAI } from "@/services/ai.service";
 import mammoth from "mammoth";
 
 export async function POST(req: Request) {
@@ -71,14 +72,16 @@ export async function POST(req: Request) {
       }
     }
 
-    const score =
-      Math.floor(
-        Math.random() * 30
-      ) + 70;
+    const ai =
+      await runCareerAI(
+        linkedin,
+        resumeText,
+        goal
+      );
 
-    const headline = goal
-      ? `Strong fit for ${goal}`
-      : "Strong LinkedIn potential";
+    const score = ai.score;
+    const headline =
+      ai.headline;
 
     const saved =
       await prisma.analysis.create({
@@ -95,12 +98,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       id: saved.id,
-      score,
-      headline,
-      linkedin,
-      goal,
-      resumePreview:
-        resumeText.slice(0, 1000),
+      ...ai,
     });
   } catch (error) {
     console.error(error);
