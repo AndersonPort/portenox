@@ -3,87 +3,118 @@
 import { useState } from "react";
 
 export default function AnalyzePage() {
-  const [text, setText] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [linkedin, setLinkedin] =
+    useState("");
+
+  const [goal, setGoal] =
+    useState("");
+
+  const [file, setFile] =
+    useState<File | null>(null);
+
+  const [loading, setLoading] =
+    useState(false);
 
   async function handleAnalyze() {
     setLoading(true);
-    setResult(null);
 
-    const res = await fetch("/api/analyze", {
-      method: "POST",
-      body: JSON.stringify({ text }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const formData = new FormData();
+
+    formData.append(
+      "linkedin",
+      linkedin
+    );
+
+    formData.append("goal", goal);
+
+    if (file) {
+      formData.append("resume", file);
+    }
+
+    const res = await fetch(
+      "/api/analyze",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
     const data = await res.json();
 
-    setResult(data);
+    console.log(data);
+
     setLoading(false);
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white px-8 py-12">
+    <main className="min-h-screen bg-zinc-950 text-white p-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-5xl font-bold mb-4">
-          Analyze Your Profile
+        <h1 className="text-5xl font-bold mb-10">
+          Analyze Your Career
         </h1>
 
-        <p className="text-zinc-400 mb-8">
-          Paste your LinkedIn summary, experience or profile text.
-        </p>
+        <div className="space-y-6 bg-zinc-900 border border-zinc-800 rounded-2xl p-8">
+          <div>
+            <label className="block mb-2 text-sm text-zinc-400">
+              LinkedIn URL
+            </label>
 
-        <textarea
-          className="w-full h-56 bg-zinc-900 border border-zinc-800 rounded-2xl p-4 outline-none"
-          placeholder="Paste your profile here..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-
-        <button
-          onClick={handleAnalyze}
-          disabled={loading}
-          className="mt-5 w-full bg-white text-black font-semibold py-4 rounded-2xl hover:opacity-90 transition disabled:opacity-50"
-        >
-          {loading ? "Analyzing..." : "Analyze Now"}
-        </button>
-
-        {result && (
-          <div className="mt-10 bg-zinc-900 border border-zinc-800 rounded-2xl p-6 space-y-4">
-            <div className="text-3xl font-bold">
-              Score: {result.score}
-            </div>
-
-            <div>
-              <p className="text-zinc-400 text-sm mb-1">
-                Suggested Headline
-              </p>
-              <p>{result.headline}</p>
-            </div>
-
-            <div>
-              <p className="text-zinc-400 text-sm mb-2">
-                Recommendations
-              </p>
-
-              <ul className="space-y-2">
-                {result.suggestions.map(
-                  (item: string, index: number) => (
-                    <li
-                      key={index}
-                      className="bg-zinc-800 px-3 py-2 rounded-xl"
-                    >
-                      {item}
-                    </li>
-                  )
-                )}
-              </ul>
-            </div>
+            <input
+              value={linkedin}
+              onChange={(e) =>
+                setLinkedin(
+                  e.target.value
+                )
+              }
+              placeholder="https://linkedin.com/in/..."
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3"
+            />
           </div>
-        )}
+
+          <div>
+            <label className="block mb-2 text-sm text-zinc-400">
+              Upload Resume (PDF/DOCX)
+            </label>
+
+            <input
+              type="file"
+              onChange={(e) =>
+                setFile(
+                  e.target.files?.[0] ||
+                    null
+                )
+              }
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 text-sm text-zinc-400">
+              Career Goal
+            </label>
+
+            <input
+              value={goal}
+              onChange={(e) =>
+                setGoal(
+                  e.target.value
+                )
+              }
+              placeholder="QA Lead, Remote QA, Automation Engineer..."
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3"
+            />
+          </div>
+
+          <button
+            onClick={handleAnalyze}
+            disabled={loading}
+            className="w-full bg-white text-black font-semibold py-4 rounded-2xl"
+          >
+            {loading
+              ? "Analyzing..."
+              : "Analyze My Career"}
+          </button>
+        </div>
       </div>
     </main>
   );
