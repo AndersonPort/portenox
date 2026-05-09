@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
-import { generateMockAnalysis } from "@/services/analyze.service";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import mammoth from "mammoth";
 
 export async function POST(req: Request) {
   try {
@@ -28,29 +28,88 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json();
-    const text = body.text || "";
+    const formData = await req.formData();
 
-    const result = generateMockAnalysis(text);
+    const linkedin = String(
+      formData.get("linkedin") || ""
+    );
 
-    const saved = await prisma.analysis.create({
-      data: {
-        rawText: text,
-        score: result.score,
-        headline: result.headline,
-        userId: user.id,
-      },
-    });
+    const goal = String(
+      formData.get("goal") || ""
+    );
+
+    const file = formData.get(
+      "resume"
+    ) as File | null;
+
+    let resumeText = "";
+
+    if (file) {
+      const bytes =
+        await file.arrayBuffer();
+
+      const buffer =
+        Buffer.from(bytes);
+
+      if (
+        file.name.endsWith(".pdf")
+      ) {
+        resumeText =
+          "PDF upload detected. Parsing temporarily unavailable in current environment.";
+      } else if (
+        file.name.endsWith(
+          ".docx"
+        )
+      ) {
+        const doc =
+          await mammoth.extractRawText(
+            { buffer }
+          );
+
+        resumeText =
+          doc.value;
+      }
+    }
+
+    const score =
+      Math.floor(
+        Math.random() * 30
+      ) + 70;
+
+    const headline = goal
+      ? `Strong fit for ${goal}`
+      : "Strong LinkedIn potential";
+
+    const saved =
+      await prisma.analysis.create({
+        data: {
+          rawText:
+            linkedin +
+            "\n\n" +
+            resumeText,
+          score,
+          headline,
+          userId: user.id,
+        },
+      });
 
     return NextResponse.json({
-      ...result,
       id: saved.id,
+      score,
+      headline,
+      linkedin,
+      goal,
+      resumePreview:
+        resumeText.slice(0, 1000),
     });
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error:
+          "Internal server error",
+      },
       { status: 500 }
     );
   }
