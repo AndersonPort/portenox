@@ -15,6 +15,9 @@ export default function AnalyzePage() {
   const [loading, setLoading] =
     useState(false);
 
+  const [result, setResult] =
+    useState<any>(null);
+
   async function handleAnalyze() {
     setLoading(true);
 
@@ -28,7 +31,10 @@ export default function AnalyzePage() {
     formData.append("goal", goal);
 
     if (file) {
-      formData.append("resume", file);
+      formData.append(
+        "resume",
+        file
+      );
     }
 
     const res = await fetch(
@@ -39,9 +45,10 @@ export default function AnalyzePage() {
       }
     );
 
-    const data = await res.json();
+    const data =
+      await res.json();
 
-    console.log(data);
+    setResult(data);
 
     setLoading(false);
   }
@@ -73,7 +80,7 @@ export default function AnalyzePage() {
 
           <div>
             <label className="block mb-2 text-sm text-zinc-400">
-              Upload Resume (PDF/DOCX)
+              Upload Resume
             </label>
 
             <input
@@ -81,7 +88,7 @@ export default function AnalyzePage() {
               onChange={(e) =>
                 setFile(
                   e.target.files?.[0] ||
-                    null
+                  null
                 )
               }
               className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3"
@@ -100,7 +107,7 @@ export default function AnalyzePage() {
                   e.target.value
                 )
               }
-              placeholder="QA Lead, Remote QA, Automation Engineer..."
+              placeholder="QA Lead, Automation Engineer..."
               className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3"
             />
           </div>
@@ -115,6 +122,91 @@ export default function AnalyzePage() {
               : "Analyze My Career"}
           </button>
         </div>
+
+        {result && (
+          <div className="mt-10 bg-zinc-900 border border-zinc-800 rounded-2xl p-8">
+            <h2 className="text-3xl font-bold mb-6">
+              Analysis Result
+            </h2>
+
+            <div className="mb-6">
+              <p className="text-zinc-400 text-sm">
+                Score
+              </p>
+              <p className="text-5xl font-bold">
+                {result.score}
+              </p>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-zinc-400 text-sm mb-2">
+                Optimized Headline
+              </p>
+              <p className="text-xl">
+                {result.headline}
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <div>
+                <p className="font-semibold mb-2">
+                  Strengths
+                </p>
+
+                <ul className="space-y-2 text-zinc-300">
+                  {result.strengths?.map(
+                    (
+                      item: string,
+                      index: number
+                    ) => (
+                      <li key={index}>
+                        • {item}
+                      </li>
+                    )
+                  )}
+                </ul>
+              </div>
+
+              <div>
+                <p className="font-semibold mb-2">
+                  Gaps
+                </p>
+
+                <ul className="space-y-2 text-zinc-300">
+                  {result.gaps?.map(
+                    (
+                      item: string,
+                      index: number
+                    ) => (
+                      <li key={index}>
+                        • {item}
+                      </li>
+                    )
+                  )}
+                </ul>
+              </div>
+
+              <div>
+                <p className="font-semibold mb-2">
+                  Recommendations
+                </p>
+
+                <ul className="space-y-2 text-zinc-300">
+                  {result.recommendations?.map(
+                    (
+                      item: string,
+                      index: number
+                    ) => (
+                      <li key={index}>
+                        • {item}
+                      </li>
+                    )
+                  )}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

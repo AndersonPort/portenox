@@ -8,7 +8,7 @@ export async function runCareerAI(
     const prompt = `
 You are an elite recruiter and career strategist.
 
-Analyze this candidate.
+Analyze this candidate deeply.
 
 LinkedIn URL:
 ${linkedin}
@@ -19,14 +19,23 @@ ${resumeText}
 Career Goal:
 ${goal}
 
-Return ONLY valid JSON:
+Return ONLY raw valid JSON.
+
+Rules:
+- score must be number from 0 to 100
+- strengths must contain exactly 3 items
+- gaps must contain exactly 3 items
+- recommendations must contain exactly 3 items
+- headline must be optimized for LinkedIn recruiters
+
+Format:
 
 {
-  "score": number,
-  "headline": "improved linkedin headline",
-  "strengths": ["item1","item2"],
-  "gaps": ["item1","item2"],
-  "recommendations": ["item1","item2"]
+  "score": 0,
+  "headline": "",
+  "strengths": ["","",""],
+  "gaps": ["","",""],
+  "recommendations": ["","",""]
 }
 `;
 
@@ -62,5 +71,24 @@ Return ONLY valid JSON:
             .replace(/```/g, "")
             .trim();
 
-    return JSON.parse(cleaned);
+    const parsed =
+        JSON.parse(cleaned);
+
+    return {
+        score:
+            parsed.score || 75,
+
+        headline:
+            parsed.headline ||
+            "Strong Professional Profile",
+
+        strengths:
+            parsed.strengths || [],
+
+        gaps:
+            parsed.gaps || [],
+
+        recommendations:
+            parsed.recommendations || [],
+    };
 }
