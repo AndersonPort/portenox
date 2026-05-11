@@ -1,5 +1,7 @@
-export type AnalysisResult = {
+export interface AnalysisResult {
   score: number;
   headline: string;
-  suggestions: string[];
-};
+  strengths: string[];
+  gaps: string[];
+  recommendations: string[];
+}
