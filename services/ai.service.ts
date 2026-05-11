@@ -5,21 +5,20 @@ export async function runCareerAI(
     resumeText: string,
     goal: string
 ) {
+    const sanitizedGoal = goal.replace(/[<>{}[\]]/g, ''); // Remove potentially dangerous chars
+    
     const prompt = `
 You are an elite recruiter and career strategist.
 
 Analyze this candidate deeply.
 
-LinkedIn URL:
-${linkedin}
+LinkedIn URL: ${encodeURIComponent(linkedin)}
 
-Resume:
-${resumeText}
+Resume: ${resumeText.substring(0, 5000)} // Limit input length
 
-Career Goal:
-${goal}
+Career Goal: ${sanitizedGoal}
 
-Return ONLY raw valid JSON.
+Return ONLY raw valid JSON with this exact structure...
 
 Rules:
 - score must be number from 0 to 100
